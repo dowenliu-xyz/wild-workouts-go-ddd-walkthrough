@@ -55,6 +55,12 @@ proto:
 		--go-grpc_out=internal/common/genproto/users --go-grpc_opt=paths=source_relative \
 		users.proto
 
+.PHONY: lint
+lint:
+	@./scripts/lint.sh trainer
+	@./scripts/lint.sh trainings
+	@./scripts/lint.sh users
+
 .PHONY: tools.require.oapi-codegen
 tools.require.oapi-codegen:
 	go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
