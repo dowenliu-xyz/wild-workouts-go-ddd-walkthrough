@@ -4,7 +4,7 @@
 # 另外在 makefile 里统一写，有统一一条指令执行的特点。反之讲到 go-generate 或 npm 指令里需要分别按需要调用，可能生成的源 IDL 定义版本不一致。
 
 .PHONY: openapi
-openapi: openapi_http openapi_js
+openapi: openapi_http #openapi_js
 
 .PHONY: openapi_http
 # 把工具安装也写在依赖上。如果工具有版本的要求，也方便把版本固定下来。
@@ -22,25 +22,29 @@ openapi_http: tools.require.oapi-codegen
 	oapi-codegen -generate types -o internal/users/openapi_types.gen.go -package main api/openapi/users.yml
 	oapi-codegen -generate chi-server -o internal/users/openapi_api.gen.go -package main api/openapi/users.yml
 
-.PHONY: openapi_js
-openapi_js:
-	mkdir -p web/src/repositories/clients/trainings
-	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v4.3.0 generate \
-		-i /local/api/openapi/trainings.yml \
-		-g javascript \
-		-o /local/web/src/repositories/clients/trainings
-
-	mkdir -p web/src/repositories/clients/trainer
-	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v4.3.0 generate \
-		-i /local/api/openapi/trainer.yml \
-		-g javascript \
-		-o /local/web/src/repositories/clients/trainer
-
-	mkdir -p web/src/repositories/clients/users
-	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v4.3.0 generate \
-		-i /local/api/openapi/users.yml \
-		-g javascript \
-		-o /local/web/src/repositories/clients/users
+#.PHONY: openapi_js
+#openapi_js:
+#	rm -rf web/src/repositories/clients
+#	mkdir -p web/src/repositories/clients/trainings
+#	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v6.6.0 generate \
+#		-i /local/api/openapi/trainings.yml \
+#		-g typescript-axios \
+#		-o /local/web/src/repositories/clients/trainings
+#	rm -rf web/src/repositories/clients/trainings/{.openapi-generator,.gitignore,.npmignore,.openapi-generator-ignore,git_push.sh}
+#
+#	mkdir -p web/src/repositories/clients/trainer
+#	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v6.6.0 generate \
+#		-i /local/api/openapi/trainer.yml \
+#		-g typescript-axios \
+#		-o /local/web/src/repositories/clients/trainer
+#	rm -rf web/src/repositories/clients/trainer/{.openapi-generator,.gitignore,.npmignore,.openapi-generator-ignore,git_push.sh}
+#
+#	mkdir -p web/src/repositories/clients/users
+#	docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli:v6.6.0 generate \
+#		-i /local/api/openapi/users.yml \
+#		-g typescript-axios \
+#		-o /local/web/src/repositories/clients/users
+#	rm -rf web/src/repositories/clients/users/{.openapi-generator,.gitignore,.npmignore,.openapi-generator-ignore,git_push.sh}
 
 .PHONY: proto
 proto:
