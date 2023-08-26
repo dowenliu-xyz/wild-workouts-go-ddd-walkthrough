@@ -1,3 +1,5 @@
+include .env
+
 # oapi-codegen 可以通过 go-generate 搞，不用写在 makefile 里
 # protoc 可以换成 buf ，同时也支持在 go-generate 里搞，也不用写在 makefile 里
 # 但是 openapi_js 生成 js 的命令不适合在 go-generate 里搞，跨项目类型了。
@@ -68,3 +70,7 @@ lint:
 .PHONY: tools.require.oapi-codegen
 tools.require.oapi-codegen:
 	go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+
+.PHONY: mycli
+mycli:
+	mycli -u ${MYSQL_USER} -p ${MYSQL_PASSWORD} ${MYSQL_DATABASE}

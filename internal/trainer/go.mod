@@ -8,10 +8,13 @@ require (
 	github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common v0.0.0-20230823065802-7ac3ec67e6aa
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/render v1.0.3
+	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang/protobuf v1.5.3
+	github.com/jmoiron/sqlx v1.3.5
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.4
+	go.uber.org/multierr v1.6.0
 	google.golang.org/api v0.138.0
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
@@ -66,6 +69,7 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2 // indirect
 	go.opencensus.io v0.24.0 // indirect
+	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/arch v0.4.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/net v0.14.0 // indirect

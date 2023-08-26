@@ -8,7 +8,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/go-chi/chi/v5"
 
-	client_pkg "github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/client"
+	grpcClient "github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/client"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/logs"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/server"
 )
@@ -22,7 +22,7 @@ func main() {
 		panic(err)
 	}
 
-	trainerClient, closeTrainerClient, err := client_pkg.NewTrainerClient()
+	trainerClient, closeTrainerClient, err := grpcClient.NewTrainerClient()
 	if err != nil {
 		panic(err)
 	}
@@ -30,7 +30,7 @@ func main() {
 		_ = closeTrainerClient()
 	}()
 
-	usersClient, closeUsersClient, err := client_pkg.NewUsersClient()
+	usersClient, closeUsersClient, err := grpcClient.NewUsersClient()
 	if err != nil {
 		panic(err)
 	}
