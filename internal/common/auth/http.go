@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"firebase.google.com/go/auth"
-	"github.com/pkg/errors"
 
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/errors"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/server/httperr"
 )
 
@@ -69,16 +69,11 @@ const (
 	userContextKey ctxKey = iota
 )
 
-// TODO 以下代码存在以下问题：
-//		1. 使用的是 pkg/errors 包的方法，带的堆栈信息在启动时生成，不仅没有用处，还会在使用时干扰正常的堆栈输出。
-//      2. 哨兵错误值。建议改成New+Is的不透明错误风格，把值依赖变更为函数依赖。
-
-// 哨兵错误值的问题：1. 无法携带更多的上下文信息 2. 非常量的哨兵值可能在运行时被替换 3. 后续代码迭代时，必须保证前向兼容，不能轻易调整错误内容
-
 var (
 	// if we expect that the user of the function may be interested with concrete error,
 	// it's a good idea to provide variable with this error
-	NoUserInContextError = errors.New("no user in context")
+
+	NoUserInContextError = errors.NewAuthorizationError("no user in context", "no-user-found")
 )
 
 func UserFromCtx(ctx context.Context) (User, error) {

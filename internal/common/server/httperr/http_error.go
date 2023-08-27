@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-chi/render"
 
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/errors"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/logs"
 )
 
@@ -18,6 +19,24 @@ func Unauthorised(slug string, err error, w http.ResponseWriter, r *http.Request
 
 func BadRequest(slug string, err error, w http.ResponseWriter, r *http.Request) {
 	httpRespondWithError(err, slug, w, r, "Bad request", http.StatusBadRequest)
+}
+
+func RespondWithSlugError(err error, w http.ResponseWriter, r *http.Request) {
+	slugError, ok := err.(errors.SlugError)
+	if !ok {
+		InternalError("internal-server-error", err, w, r)
+		return
+	}
+
+	errorType := slugError.ErrorType()
+	switch {
+	case errors.IsErrorTypeAuthorization(errorType):
+		Unauthorised(slugError.Slug(), slugError, w, r)
+	case errors.IsErrorTypeIncorrectInput(errorType):
+		BadRequest(slugError.Slug(), slugError, w, r)
+	default:
+		InternalError(slugError.Slug(), slugError, w, r)
+	}
 }
 
 func httpRespondWithError(err error, slug string, w http.ResponseWriter, r *http.Request, logMSg string, status int) {
