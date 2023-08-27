@@ -1,4 +1,6 @@
 include .env
+include .test.env
+export
 
 # oapi-codegen 可以通过 go-generate 搞，不用写在 makefile 里
 # protoc 可以换成 buf ，同时也支持在 go-generate 里搞，也不用写在 makefile 里
@@ -74,3 +76,15 @@ tools.require.oapi-codegen:
 .PHONY: mycli
 mycli:
 	mycli -u ${MYSQL_USER} -p ${MYSQL_PASSWORD} ${MYSQL_DATABASE}
+
+INERNAL_PACKAGES := $(wildcard internal/*)
+
+ifeq (test,$(firstword $(MAKECMDGOALS)))
+  TEST_ARGS := $(subst $$,$$$$,$(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)))
+  $(eval $(TEST_ARGS):;@:)
+endif
+
+.PHONY: test $(INERNAL_PACKAGES)
+test: $(INERNAL_PACKAGES)
+$(INERNAL_PACKAGES):
+	@(cd $@ && go test -count=1 -race ./... $(subst $$$$,$$,$(TEST_ARGS)))

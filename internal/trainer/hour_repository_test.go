@@ -33,25 +33,20 @@ func TestRepository(t *testing.T) {
 			// Thanks to that, your tests will be always fast and you will not be afraid to add more tests because of slowdown.
 			t.Parallel()
 
-			// 以下 t.Parallel() 需要注掉，mysql 测试不通过。并发执行，先 selece .. for update 再 insert 会报 死锁
-			// 感觉这里用 for update 的写法是有问题的。直觉上，第一个会话 for update 上锁后，第二个会话应该在 select .. for update 时阻塞。
-			// 实际没有阻塞，并且后面执行 select 的会话如果先于第一个会话 upsert，会导致第一个会话的 upsert 报死锁。
-			// 改法可能是：方案一，在报死锁后重试；方案二，不用 for update ，使用乐观锁方案
-
 			t.Run("testUpdateHour", func(t *testing.T) {
-				//t.Parallel()
+				t.Parallel()
 				testUpdateHour(t, r.Repository)
 			})
 			t.Run("testUpdateHour_parallel", func(t *testing.T) {
-				//t.Parallel()
+				t.Parallel()
 				testUpdateHour_parallel(t, r.Repository)
 			})
 			t.Run("testHourRepository_update_existing", func(t *testing.T) {
-				//t.Parallel()
+				t.Parallel()
 				testHourRepository_update_existing(t, r.Repository)
 			})
 			t.Run("testUpdateHour_rollback", func(t *testing.T) {
-				//t.Parallel()
+				t.Parallel()
 				testUpdateHour_rollback(t, r.Repository)
 			})
 		})
@@ -65,10 +60,10 @@ type Repository struct {
 
 func createRepositories(t *testing.T) []Repository {
 	return []Repository{
-		//{
-		//	Name:       "Firebase",
-		//	Repository: newFirebaseRepository(t, context.Background()),
-		//},
+		{
+			Name:       "Firebase",
+			Repository: newFirebaseRepository(t, context.Background()),
+		},
 		{
 			Name:       "MySQL",
 			Repository: newMySQLRepository(t),
@@ -151,11 +146,14 @@ func testUpdateHour_parallel(t *testing.T, repository hour.Repository) {
 	})
 	require.NoError(t, err)
 
-	workersCount := 10
+	workersCount := 20
 	workersDone := sync.WaitGroup{}
 	workersDone.Add(workersCount)
 
+	// closing startWorkers will unblock all workers at once,
+	// thanks to that it will be more likely to have race condition
 	startWorkers := make(chan struct{})
+	// if training was successfully scheduled, number of the worker is sent to this channel
 	trainingsScheduled := make(chan int, workersCount)
 
 	// we are trying to do race condition, in practice only one worker should be able to finish transaction
@@ -169,9 +167,11 @@ func testUpdateHour_parallel(t *testing.T, repository hour.Repository) {
 			schedulingTraining := false
 
 			err := repository.UpdateHour(ctx, hourTime, func(h *hour.Hour) (*hour.Hour, error) {
+				// training is already scheduled, nothing to do there
 				if h.HasTrainingScheduled() {
 					return h, nil
 				}
+				// training is not scheduled yet, so let's try to do that
 				if err := h.ScheduleTraining(); err != nil {
 					return nil, err
 				}
@@ -182,12 +182,15 @@ func testUpdateHour_parallel(t *testing.T, repository hour.Repository) {
 			})
 
 			if schedulingTraining && err == nil {
+				// training is only scheduled if UpdateHour didn't return an error
 				trainingsScheduled <- workerNum
 			}
 		}()
 	}
 
 	close(startWorkers)
+
+	// we are waiting, when all workers did the job
 	workersDone.Wait()
 	close(trainingsScheduled)
 

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"math/rand"
 	"os"
 	"time"
 
@@ -81,6 +82,28 @@ func (m MySQLHourRepository) getOrCreateHour(
 }
 
 func (m MySQLHourRepository) UpdateHour(
+	ctx context.Context,
+	hourTime time.Time,
+	updateFn func(h *hour.Hour) (*hour.Hour, error),
+) (err error) {
+	// 相比原版，加死锁重试
+	for {
+		err = m.updateHour(ctx, hourTime, updateFn)
+		if err == nil {
+			return nil
+		}
+		var mySQLError *mysql.MySQLError
+		if errors.As(err, &mySQLError) && string(mySQLError.SQLState[:]) == "40001" {
+			// Deadlock, wait a short, random timeout and retry
+			time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
+			continue
+		} else {
+			return err
+		}
+	}
+}
+
+func (m MySQLHourRepository) updateHour(
 	ctx context.Context,
 	hourTime time.Time,
 	updateFn func(h *hour.Hour) (*hour.Hour, error),
