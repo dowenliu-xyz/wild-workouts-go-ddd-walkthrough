@@ -14,7 +14,10 @@ import (
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/genproto/trainer"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/logs"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/server"
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/adapters"
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/app"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/domain/hour"
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/ports"
 )
 
 func main() {
@@ -26,7 +29,7 @@ func main() {
 		panic(err)
 	}
 
-	firebaseDB := db{firestoreClient}
+	datesRepository := adapters.NewDatesFirestoreRepository(firestoreClient)
 
 	hourFactory, err := hour.NewFactory(hour.FactoryConfig{
 		MaxWeeksInTheFutureToSet: 6,
@@ -37,23 +40,24 @@ func main() {
 		panic(err)
 	}
 
+	hourRepository := adapters.NewFirestoreHourRepository(firestoreClient, hourFactory)
+
+	service := app.NewHourService(datesRepository, hourRepository)
+
 	serverType := strings.ToLower(os.Getenv("SERVER_TO_RUN"))
 	switch serverType {
 	case "http":
-		go loadFixtures(firebaseDB)
+		go loadFixtures(datesRepository)
 
 		server.RunHTTPServer(func(router chi.Router) http.Handler {
-			return HandlerFromMux(
-				HttpServer{
-					firebaseDB,
-					NewFirestoreHourRepository(firestoreClient, hourFactory),
-				},
+			return ports.HandlerFromMux(
+				ports.NewHttpServer(service),
 				router,
 			)
 		})
 	case "grpc":
 		server.RunGRPCServer(func(server *grpc.Server) {
-			svc := GrpcServer{hourRepository: NewFirestoreHourRepository(firestoreClient, hourFactory)}
+			svc := ports.NewGrpcServer(hourRepository)
 			trainer.RegisterTrainerServiceServer(server, svc)
 		})
 	default:

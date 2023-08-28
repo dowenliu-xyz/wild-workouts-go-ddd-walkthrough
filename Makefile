@@ -14,13 +14,13 @@ openapi: openapi_http #openapi_js
 # 把工具安装也写在依赖上。如果工具有版本的要求，也方便把版本固定下来。
 # 这里依赖的 oapi-codegen 工具还没有正式版本，所以用 latest。有时有些依赖，更激进的，需要安装最新的不稳定的 master 版本。
 openapi_http: tools.require.oapi-codegen
-	mkdir -p internal/trainings
-	oapi-codegen -generate types -o internal/trainings/openapi_types.gen.go -package main api/openapi/trainings.yml
-	oapi-codegen -generate chi-server -o internal/trainings/openapi_api.gen.go -package main api/openapi/trainings.yml
+	mkdir -p internal/trainings/ports
+	oapi-codegen -generate types -o internal/trainings/ports/openapi_types.gen.go -package main api/openapi/trainings.yml
+	oapi-codegen -generate chi-server -o internal/trainings/ports/openapi_api.gen.go -package main api/openapi/trainings.yml
 
-	mkdir -p internal/trainer
-	oapi-codegen -generate types -o internal/trainer/openapi_types.gen.go -package main api/openapi/trainer.yml
-	oapi-codegen -generate chi-server -o internal/trainer/openapi_api.gen.go -package main api/openapi/trainer.yml
+	mkdir -p internal/trainer/ports
+	oapi-codegen -generate types -o internal/trainer/ports/openapi_types.gen.go -package main api/openapi/trainer.yml
+	oapi-codegen -generate chi-server -o internal/trainer/ports/openapi_api.gen.go -package main api/openapi/trainer.yml
 
 	mkdir -p internal/users
 	oapi-codegen -generate types -o internal/users/openapi_types.gen.go -package main api/openapi/users.yml

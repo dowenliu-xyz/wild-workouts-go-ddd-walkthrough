@@ -13,7 +13,11 @@ import (
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/genproto/trainer"
 )
 
-func loadFixtures(db db) {
+type fixturesChecker interface {
+	CanLoadFixtures(ctx context.Context, daysToSet int) (bool, error)
+}
+
+func loadFixtures(checker fixturesChecker) {
 	start := time.Now()
 	ctx := context.Background()
 
@@ -30,7 +34,7 @@ func loadFixtures(db db) {
 	var err error
 
 	for {
-		canLoad, err = canLoadFixtures(ctx, db)
+		canLoad, err = checker.CanLoadFixtures(ctx, daysToSet)
 		if err == nil {
 			break
 		}
@@ -82,6 +86,9 @@ func loadTrainerFixtures(ctx context.Context) error {
 			}
 
 			ts := timestamppb.New(trainingTime)
+			if err := ts.CheckValid(); err != nil {
+				return errors.Wrapf(err, "unable to marshal time %s", trainingTime)
+			}
 
 			if localRand.NormFloat64() > 0 {
 				_, err = trainerClient.MakeHourAvailable(ctx, &trainer.UpdateHourRequest{
@@ -95,13 +102,4 @@ func loadTrainerFixtures(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func canLoadFixtures(ctx context.Context, db db) (bool, error) {
-	documents, err := db.TrainerHoursCollection().Limit(daysToSet).Documents(ctx).GetAll()
-	if err != nil {
-		return false, err
-	}
-
-	return len(documents) < daysToSet, nil
 }

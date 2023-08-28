@@ -27,7 +27,7 @@ func TestNewAvailableHour_not_full_hour(t *testing.T) {
 	constructorTime := trainingHourWithMinutes(13)
 
 	_, err := testHourFactory.NewAvailableHour(constructorTime)
-	assert.ErrorIs(t, err, hour.ErrNotFullHour)
+	assert.True(t, hour.IsErrNotFullHour(err))
 }
 
 func TestNewAvailableHour_too_distant_date(t *testing.T) {
@@ -51,11 +51,11 @@ func TestNewAvailableHour_too_distant_date(t *testing.T) {
 func TestNewAvailableHour_past_date(t *testing.T) {
 	pastHour := time.Now().Truncate(time.Hour).Add(-time.Hour)
 	_, err := testHourFactory.NewAvailableHour(pastHour)
-	assert.ErrorIs(t, err, hour.ErrPastHour)
+	assert.True(t, hour.IsErrPastHour(err))
 
 	currentHour := time.Now().Truncate(time.Hour)
 	_, err = testHourFactory.NewAvailableHour(currentHour)
-	assert.ErrorIs(t, err, hour.ErrPastHour)
+	assert.True(t, hour.IsErrPastHour(err))
 }
 
 func TestNewAvailableHour_too_early_hour(t *testing.T) {
@@ -116,7 +116,7 @@ func TestHour_Time(t *testing.T) {
 func TestUnmarshalHourFromDatabase(t *testing.T) {
 	trainingTime := validTrainingHour()
 
-	h, err := testHourFactory.UnmarshalHourFromDatabase(trainingTime, hour.TrainingScheduled)
+	h, err := testHourFactory.UnmarshalHourFromDatabase(trainingTime, hour.TrainingScheduled())
 	require.NoError(t, err)
 
 	assert.Equal(t, trainingTime, h.Time())

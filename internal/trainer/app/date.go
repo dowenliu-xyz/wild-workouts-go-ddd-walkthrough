@@ -1,10 +1,37 @@
-package main
+package app
 
 import (
 	"time"
-
-	"github.com/deepmap/oapi-codegen/pkg/types"
 )
+
+type Date struct {
+	Date         time.Time
+	HasFreeHours bool
+	Hours        []Hour
+}
+
+type Hour struct {
+	Available            bool
+	HasTrainingScheduled bool
+	Hour                 time.Time
+}
+
+func (d Date) FindHourInDate(timeToCheck time.Time) (*Hour, bool) {
+	for i, hour := range d.Hours {
+		if hour.Hour == timeToCheck {
+			return &d.Hours[i], true
+		}
+	}
+
+	return nil, false
+}
+
+// TODO 好像没有用
+
+type AvailableHoursRequest struct {
+	DateFrom time.Time
+	DateTo   time.Time
+}
 
 const (
 	minHour = 12
@@ -13,11 +40,6 @@ const (
 
 // setDefaultAvailability adds missing hours to Date model if they were not set
 func setDefaultAvailability(date Date) Date {
-
-	// 从 UTC 12:00 开始，每隔一小时，直到 UTC 20:00 , 检查是否有对应的 Hour model
-	// 对应时区时间应该是 08:00-0400 到 16:00-0400 . 西4区
-	//
-	// P.S. 西4区的8小时工作制是TMD真8小时啊!!!
 
 HoursLoop:
 	for hour := minHour; hour <= maxHour; hour++ {
@@ -39,8 +61,8 @@ HoursLoop:
 	return date
 }
 
-func addMissingDates(params *GetTrainerAvailableHoursParams, dates []Date) []Date {
-	for day := params.DateFrom.UTC(); day.Before(params.DateTo) || day.Equal(params.DateTo); day = day.Add(time.Hour * 24) {
+func addMissingDates(dates []Date, from time.Time, to time.Time) []Date {
+	for day := from.UTC(); day.Before(to) || day.Equal(to); day = day.Add(time.Hour * 24) {
 		found := false
 		for _, date := range dates {
 			if date.Date.Equal(day) {
@@ -51,9 +73,7 @@ func addMissingDates(params *GetTrainerAvailableHoursParams, dates []Date) []Dat
 
 		if !found {
 			date := Date{
-				Date: types.Date{
-					Time: day,
-				},
+				Date: day,
 			}
 			date = setDefaultAvailability(date)
 			dates = append(dates, date)
@@ -61,14 +81,4 @@ func addMissingDates(params *GetTrainerAvailableHoursParams, dates []Date) []Dat
 	}
 
 	return dates
-}
-
-func (d Date) FindHourInDate(timeToCheck time.Time) (*Hour, bool) {
-	for i, hour := range d.Hours {
-		if hour.Hour == timeToCheck {
-			return &d.Hours[i], true
-		}
-	}
-
-	return nil, false
 }

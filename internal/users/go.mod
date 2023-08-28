@@ -5,7 +5,7 @@ go 1.21
 require (
 	cloud.google.com/go/firestore v1.12.0
 	firebase.google.com/go v3.13.0+incompatible
-	github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common v0.0.0-20230823113711-ddc34b8dd9e7
+	github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common v0.0.0-20230827161552-4324f02318cb
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/render v1.0.3
 	github.com/pkg/errors v0.9.1

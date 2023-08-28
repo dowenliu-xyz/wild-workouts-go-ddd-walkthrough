@@ -5,7 +5,7 @@ go 1.21
 require (
 	cloud.google.com/go/firestore v1.12.0
 	github.com/deepmap/oapi-codegen v1.13.4
-	github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common v0.0.0-20230823065802-7ac3ec67e6aa
+	github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common v0.0.0-20230827161552-4324f02318cb
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/render v1.0.3
 	github.com/go-sql-driver/mysql v1.7.1

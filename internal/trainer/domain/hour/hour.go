@@ -104,7 +104,7 @@ func (f Factory) NewAvailableHour(hour time.Time) (*Hour, error) {
 
 	return &Hour{
 		hour:         hour,
-		availability: Available,
+		availability: Available(),
 	}, nil
 }
 
@@ -115,7 +115,7 @@ func (f Factory) NewNotAvailableHour(hour time.Time) (*Hour, error) {
 
 	return &Hour{
 		hour:         hour,
-		availability: NotAvailable,
+		availability: NotAvailable(),
 	}, nil
 }
 
@@ -138,17 +138,26 @@ func (f Factory) UnmarshalHourFromDatabase(hour time.Time, availability Availabi
 	}, nil
 }
 
-// TODO 错误哨兵值 -> 不透明错误
-//
-// 原版代码使用 pkg/errors 的 New 函数创建值。这里换成标准包的errors。
-// 因为 pkg/errors New 带堆栈。只有业务代码里的堆栈信息才有用，这里加上堆栈的话实际只能是日志噪音。
-
 var (
-	ErrNotFullHour = errors.New("hour should be a full hour")
-	ErrPastHour    = errors.New("cannot create hour from past")
+	errNotFullHour = errors.New("hour should be a full hour")
+	errPastHour    = errors.New("cannot create hour from past")
 )
 
-// TODO 错误结构 -> 不透明错误
+func NewErrNotFullHour() error {
+	return pkg_errors.WithStack(errNotFullHour)
+}
+
+func IsErrNotFullHour(err error) bool {
+	return errors.Is(err, errNotFullHour)
+}
+
+func NewErrPastHour() error {
+	return pkg_errors.WithStack(errPastHour)
+}
+
+func IsErrPastHour(err error) bool {
+	return errors.Is(err, errPastHour)
+}
 
 // If you have the error with a more complex context,
 // it's a good idea to define it as a separate type.
@@ -195,7 +204,7 @@ func (e TooLateHourError) Error() string {
 
 func (f Factory) validateTime(hour time.Time) error {
 	if !hour.Round(time.Hour).Equal(hour) {
-		return pkg_errors.WithStack(ErrNotFullHour)
+		return NewErrNotFullHour()
 	}
 
 	// AddDate is better than Add for adding days, because not every day have 24h!
@@ -208,7 +217,7 @@ func (f Factory) validateTime(hour time.Time) error {
 
 	currentHour := time.Now().Truncate(time.Hour)
 	if hour.Before(currentHour) || hour.Equal(currentHour) {
-		return pkg_errors.WithStack(ErrPastHour)
+		return NewErrPastHour()
 	}
 	if hour.UTC().Hour() > f.fc.MaxUtcHour {
 		return pkg_errors.WithStack(TooLateHourError{

@@ -1,4 +1,4 @@
-package main
+package ports
 
 import (
 	"context"
@@ -17,6 +17,16 @@ type GrpcServer struct {
 	trainer.UnimplementedTrainerServiceServer
 
 	hourRepository hour.Repository
+}
+
+func NewGrpcServer(hourRepository hour.Repository) GrpcServer {
+	if hourRepository == nil {
+		panic("missing hourRepository") // TODO 开除预警
+	}
+
+	return GrpcServer{
+		hourRepository: hourRepository,
+	}
 }
 
 func (g GrpcServer) MakeHourAvailable(ctx context.Context, request *trainer.UpdateHourRequest) (*trainer.EmptyResponse, error) {

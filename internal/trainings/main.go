@@ -11,6 +11,9 @@ import (
 	grpcClient "github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/client"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/logs"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/server"
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainings/adapters"
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainings/app"
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainings/ports"
 )
 
 func main() {
@@ -38,9 +41,13 @@ func main() {
 		_ = closeUsersClient()
 	}()
 
-	firebaseDB := db{client}
+	trainingsRepository := adapters.NewTrainingsFirestoreRepository(client)
+	trainerGrpc := adapters.NewTrainerGrpc(trainerClient)
+	usersGrpc := adapters.NewUsersGrpc(usersClient)
+
+	trainingsService := app.NewTrainingsService(trainingsRepository, trainerGrpc, usersGrpc)
 
 	server.RunHTTPServer(func(router chi.Router) http.Handler {
-		return HandlerFromMux(HttpServer{firebaseDB, trainerClient, usersClient}, router)
+		return ports.HandlerFromMux(ports.NewHttpServer(trainingsService), router)
 	})
 }

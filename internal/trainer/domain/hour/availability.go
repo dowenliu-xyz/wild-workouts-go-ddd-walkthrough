@@ -2,21 +2,44 @@ package hour
 
 import (
 	"errors"
-	"fmt"
 
 	pkg_errors "github.com/pkg/errors"
 )
 
 var (
-	Available         = Availability{"available"}
-	NotAvailable      = Availability{"not_available"}
-	TrainingScheduled = Availability{"training_scheduled"}
+	available         = Availability{"available"}
+	notAvailable      = Availability{"not_available"}
+	trainingScheduled = Availability{"training_scheduled"}
 )
 
+func Available() Availability {
+	return available
+}
+
+func IsAvailable(availability Availability) bool {
+	return availability == available
+}
+
+func NotAvailable() Availability {
+	return notAvailable
+}
+
+func IsNotAvailable(availability Availability) bool {
+	return availability == notAvailable
+}
+
+func TrainingScheduled() Availability {
+	return trainingScheduled
+}
+
+func IsTrainingScheduled(availability Availability) bool {
+	return availability == trainingScheduled
+}
+
 var availabilityValues = []Availability{
-	Available,
-	NotAvailable,
-	TrainingScheduled,
+	Available(),
+	NotAvailable(),
+	TrainingScheduled(),
 }
 
 // Availability is enum.
@@ -24,10 +47,6 @@ var availabilityValues = []Availability{
 // Using struct instead of `type Availability string` for enums allows us to ensure,
 // that we have full control of what values are possible.
 // With `type Availability string` you are able to create `Availability("i_can_put_anything_here")`
-//
-// TODO 但同时也有哨兵值问题，可选值虽然在编码期预定了，但值是 var 不是 const ，可能在运行时被改变
-//
-//	用函数供值并配合 IsXXX 函数的方式可以解决，但代码会又长又没营养。
 type Availability struct {
 	a string
 }
@@ -38,7 +57,7 @@ func NewAvailabilityFromString(availabilityStr string) (Availability, error) {
 			return availability, nil
 		}
 	}
-	return Availability{}, fmt.Errorf("unknown '%s' availability", availabilityStr)
+	return Availability{}, pkg_errors.Errorf("unknown '%s' availability", availabilityStr)
 }
 
 // Every type in Go have zero value. In that case it's `Availability{}`.
@@ -52,61 +71,80 @@ func (h Availability) String() string {
 	return h.a
 }
 
-// TODO 错误哨兵值 -> 不透明错误
-//
-// 原版代码使用 pkg/errors 的 New 函数创建值。这里换成标准包的errors。
-// 因为 pkg/errors New 带堆栈。只有业务代码里的堆栈信息才有用，这里加上堆栈的话实际只能是日志噪音。
-
 var (
-	ErrTrainingScheduled   = errors.New("unable to modify hour, because scheduled training")
-	ErrNoTrainingScheduled = errors.New("training is not scheduled")
-	ErrHourNotAvailable    = errors.New("hour is not available")
+	errTrainingScheduled   = errors.New("unable to modify hour, because scheduled training")
+	errNoTrainingScheduled = errors.New("training is not scheduled")
+	errHourNotAvailable    = errors.New("hour is not available")
 )
+
+func NewErrTrainingScheduled() error {
+	return pkg_errors.WithStack(errTrainingScheduled)
+}
+
+func IsErrTrainingScheduled(err error) bool {
+	return errors.Is(err, errTrainingScheduled)
+}
+
+func NewErrNoTrainingScheduled() error {
+	return pkg_errors.WithStack(errNoTrainingScheduled)
+}
+
+func IsErrNoTrainingScheduled(err error) bool {
+	return errors.Is(err, errNoTrainingScheduled)
+}
+
+func NewErrHourNotAvailable() error {
+	return pkg_errors.WithStack(errHourNotAvailable)
+}
+
+func IsErrHourNotAvailable(err error) bool {
+	return errors.Is(err, errHourNotAvailable)
+}
 
 func (h Hour) Availability() Availability {
 	return h.availability
 }
 
 func (h Hour) IsAvailable() bool {
-	return h.availability == Available
+	return IsAvailable(h.availability)
 }
 
 func (h Hour) HasTrainingScheduled() bool {
-	return h.availability == TrainingScheduled
+	return IsTrainingScheduled(h.availability)
 }
 
 func (h *Hour) MakeNotAvailable() error {
 	if h.HasTrainingScheduled() {
-		return pkg_errors.WithStack(ErrTrainingScheduled)
+		return NewErrTrainingScheduled()
 	}
 
-	h.availability = NotAvailable
+	h.availability = NotAvailable()
 	return nil
 }
 
 func (h *Hour) MakeAvailable() error {
 	if h.HasTrainingScheduled() {
-		return pkg_errors.WithStack(ErrTrainingScheduled)
+		return NewErrTrainingScheduled()
 	}
 
-	h.availability = Available
+	h.availability = Available()
 	return nil
 }
 
 func (h *Hour) ScheduleTraining() error {
 	if !h.IsAvailable() {
-		return pkg_errors.WithStack(ErrHourNotAvailable)
+		return NewErrHourNotAvailable()
 	}
 
-	h.availability = TrainingScheduled
+	h.availability = TrainingScheduled()
 	return nil
 }
 
 func (h *Hour) CancelTraining() error {
 	if !h.HasTrainingScheduled() {
-		return pkg_errors.WithStack(ErrNoTrainingScheduled)
+		return NewErrNoTrainingScheduled()
 	}
 
-	h.availability = Available
+	h.availability = Available()
 	return nil
 }

@@ -20,7 +20,7 @@ func TestHour_MakeNotAvailable(t *testing.T) {
 func TestHour_MakeNotAvailable_with_scheduled_training(t *testing.T) {
 	h := newHourWithScheduledTraining(t)
 
-	assert.ErrorIs(t, h.MakeNotAvailable(), hour.ErrTrainingScheduled)
+	assert.True(t, hour.IsErrTrainingScheduled(h.MakeNotAvailable()))
 }
 
 func TestHour_MakeAvailable(t *testing.T) {
@@ -36,7 +36,7 @@ func TestHour_MakeAvailable(t *testing.T) {
 func TestHour_MakeAvailable_with_scheduled_training(t *testing.T) {
 	h := newHourWithScheduledTraining(t)
 
-	assert.ErrorIs(t, h.MakeAvailable(), hour.ErrTrainingScheduled)
+	assert.True(t, hour.IsErrTrainingScheduled(h.MakeAvailable()))
 }
 
 func TestHour_ScheduleTraining(t *testing.T) {
@@ -51,7 +51,7 @@ func TestHour_ScheduleTraining(t *testing.T) {
 
 func TestHour_ScheduleTraining_with_not_available(t *testing.T) {
 	h := newNotAvailableHour(t)
-	assert.ErrorIs(t, h.ScheduleTraining(), hour.ErrHourNotAvailable)
+	assert.True(t, hour.IsErrHourNotAvailable(h.ScheduleTraining()))
 }
 
 func TestHour_CancelTraining(t *testing.T) {
@@ -67,14 +67,14 @@ func TestHour_CancelTraining_no_training_scheduled(t *testing.T) {
 	h, err := testHourFactory.NewAvailableHour(validTrainingHour())
 	require.NoError(t, err)
 
-	assert.ErrorIs(t, h.CancelTraining(), hour.ErrNoTrainingScheduled)
+	assert.True(t, hour.IsErrNoTrainingScheduled(h.CancelTraining()))
 }
 
 func TestNewAvailabilityFromString(t *testing.T) {
 	testCases := []hour.Availability{
-		hour.Available,
-		hour.NotAvailable,
-		hour.TrainingScheduled,
+		hour.Available(),
+		hour.NotAvailable(),
+		hour.TrainingScheduled(),
 	}
 
 	for _, expectedAvailability := range testCases {
