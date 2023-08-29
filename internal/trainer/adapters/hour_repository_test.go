@@ -222,7 +222,7 @@ func testUpdateHour_rollback(t *testing.T, repository hour.Repository) {
 	})
 	require.Error(t, err)
 
-	persistedHour, err := repository.GetOrCreateHour(ctx, hourTime)
+	persistedHour, err := repository.GetHour(ctx, hourTime)
 	require.NoError(t, err)
 
 	assert.True(t, persistedHour.IsAvailable(), "availability change was persisted, not rolled back")
@@ -290,10 +290,10 @@ var testHourFactory = hour.MustNewFactory(hour.FactoryConfig{
 })
 
 func newFirebaseRepository(t *testing.T, ctx context.Context) *adapters.FirestoreHourRepository {
-	firebaseClient, err := firestore.NewClient(ctx, os.Getenv("GCP_PROJECT"))
+	firestoreClient, err := firestore.NewClient(ctx, os.Getenv("GCP_PROJECT"))
 	require.NoError(t, err)
 
-	return adapters.NewFirestoreHourRepository(firebaseClient, testHourFactory)
+	return adapters.NewFirestoreHourRepository(firestoreClient, testHourFactory)
 }
 
 func newMySQLRepository(t *testing.T) *adapters.MySQLHourRepository {
@@ -336,7 +336,7 @@ func newValidHourTime() time.Time {
 func assertHourInRepository(ctx context.Context, t *testing.T, repo hour.Repository, domainHour *hour.Hour) {
 	require.NotNil(t, domainHour)
 
-	hourFromRepo, err := repo.GetOrCreateHour(ctx, domainHour.Time())
+	hourFromRepo, err := repo.GetHour(ctx, domainHour.Time())
 	require.NoError(t, err)
 
 	assert.Equal(t, domainHour, hourFromRepo)

@@ -5,7 +5,7 @@ go 1.21
 require (
 	cloud.google.com/go/firestore v1.12.0
 	github.com/deepmap/oapi-codegen v1.13.4
-	github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common v0.0.0-20230827161552-4324f02318cb
+	github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common v0.0.0-20230828091938-d1f938e09501
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/render v1.0.3
 	github.com/go-sql-driver/mysql v1.7.1
@@ -17,7 +17,6 @@ require (
 	go.uber.org/multierr v1.6.0
 	google.golang.org/api v0.138.0
 	google.golang.org/grpc v1.57.0
-	google.golang.org/protobuf v1.31.0
 )
 
 require (
@@ -84,5 +83,6 @@ require (
 	google.golang.org/genproto v0.0.0-20230803162519-f966b187b2e5 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230803162519-f966b187b2e5 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230807174057-1744710a1577 // indirect
+	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

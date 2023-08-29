@@ -43,3 +43,21 @@ func (s TrainerGrpc) CancelTraining(ctx context.Context, trainingTime time.Time)
 
 	return errors.WithStack(err)
 }
+
+func (s TrainerGrpc) MoveTraining(
+	ctx context.Context,
+	newTime time.Time,
+	originalTrainingTime time.Time,
+) error {
+	err := s.ScheduleTraining(ctx, newTime)
+	if err != nil {
+		return errors.WithMessage(err, "unable to schedule training")
+	}
+
+	err = s.CancelTraining(ctx, originalTrainingTime)
+	if err != nil {
+		return errors.WithMessage(err, "unable to cancel training")
+	}
+
+	return nil
+}

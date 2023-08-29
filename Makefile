@@ -15,12 +15,12 @@ openapi: openapi_http #openapi_js
 # 这里依赖的 oapi-codegen 工具还没有正式版本，所以用 latest。有时有些依赖，更激进的，需要安装最新的不稳定的 master 版本。
 openapi_http: tools.require.oapi-codegen
 	mkdir -p internal/trainings/ports
-	oapi-codegen -generate types -o internal/trainings/ports/openapi_types.gen.go -package main api/openapi/trainings.yml
-	oapi-codegen -generate chi-server -o internal/trainings/ports/openapi_api.gen.go -package main api/openapi/trainings.yml
+	oapi-codegen -generate types -o internal/trainings/ports/openapi_types.gen.go -package ports api/openapi/trainings.yml
+	oapi-codegen -generate chi-server -o internal/trainings/ports/openapi_api.gen.go -package ports api/openapi/trainings.yml
 
 	mkdir -p internal/trainer/ports
-	oapi-codegen -generate types -o internal/trainer/ports/openapi_types.gen.go -package main api/openapi/trainer.yml
-	oapi-codegen -generate chi-server -o internal/trainer/ports/openapi_api.gen.go -package main api/openapi/trainer.yml
+	oapi-codegen -generate types -o internal/trainer/ports/openapi_types.gen.go -package ports api/openapi/trainer.yml
+	oapi-codegen -generate chi-server -o internal/trainer/ports/openapi_api.gen.go -package ports api/openapi/trainer.yml
 
 	mkdir -p internal/users
 	oapi-codegen -generate types -o internal/users/openapi_types.gen.go -package main api/openapi/users.yml
@@ -72,6 +72,10 @@ lint:
 .PHONY: tools.require.oapi-codegen
 tools.require.oapi-codegen:
 	go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+
+.PHONY: fmt
+fmt:
+	goimports -l -w internal/
 
 .PHONY: mycli
 mycli:
