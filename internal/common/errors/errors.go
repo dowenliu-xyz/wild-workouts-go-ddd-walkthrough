@@ -1,5 +1,7 @@
 package errors
 
+import "github.com/pkg/errors"
+
 type ErrorType struct {
 	t string
 }
@@ -40,26 +42,26 @@ func (s SlugError) ErrorType() ErrorType {
 	return s.errorType
 }
 
-func NewSlugError(error string, slug string) SlugError {
-	return SlugError{
+func NewSlugError(error string, slug string) error {
+	return errors.WithStack(SlugError{
 		error:     error,
 		slug:      slug,
 		errorType: errorTypeUnknown,
-	}
+	})
 }
 
-func NewAuthorizationError(error string, slug string) SlugError {
-	return SlugError{
+func NewAuthorizationError(error string, slug string) error {
+	return errors.WithStack(SlugError{
 		error:     error,
 		slug:      slug,
 		errorType: errorTypeAuthorization,
-	}
+	})
 }
 
-func NewIncorrectInputError(error string, slug string) SlugError {
-	return SlugError{
+func NewIncorrectInputError(error string, slug string) error {
+	return errors.WithStack(SlugError{
 		error:     error,
 		slug:      slug,
 		errorType: errorTypeIncorrectInput,
-	}
+	})
 }

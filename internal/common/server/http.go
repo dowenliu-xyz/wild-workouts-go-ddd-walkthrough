@@ -19,6 +19,10 @@ import (
 )
 
 func RunHTTPServer(createHandler func(router chi.Router) http.Handler) {
+	RunHTTPServerOnAddr(":"+os.Getenv("PORT"), createHandler)
+}
+
+func RunHTTPServerOnAddr(addr string, createHandler func(router chi.Router) http.Handler) {
 	apiRouter := chi.NewRouter()
 	setMiddlewares(apiRouter)
 
@@ -28,7 +32,7 @@ func RunHTTPServer(createHandler func(router chi.Router) http.Handler) {
 
 	logrus.Info("Starting HTTP server")
 
-	http.ListenAndServe(":"+os.Getenv("PORT"), rootRouter)
+	http.ListenAndServe(addr, rootRouter)
 }
 
 func setMiddlewares(router *chi.Mux) {
