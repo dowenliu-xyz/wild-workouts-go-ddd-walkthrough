@@ -5,11 +5,12 @@ go 1.21
 require (
 	cloud.google.com/go/firestore v1.12.0
 	github.com/deepmap/oapi-codegen v1.13.4
-	github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common v0.0.0-20230828091938-d1f938e09501
+	github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common v0.0.0-20230830033345-e330b65c9af3
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/render v1.0.3
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang/protobuf v1.5.3
+	github.com/google/uuid v1.3.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
@@ -45,7 +46,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/s2a-go v0.1.5 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.5 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect

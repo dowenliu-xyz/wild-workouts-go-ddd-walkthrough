@@ -51,7 +51,7 @@ services:
 #      - ./service-account-file.json:$SERVICE_ACCOUNT_FILE
     working_dir: /internal/trainings
     ports:
-      - "127.0.0.1:3003:$PORT"
+      - "127.0.0.1:3001:$PORT"
     env_file:
       - .env
     depends_on:
@@ -97,6 +97,16 @@ services:
       PORT: 8787
     ports:
       - "127.0.0.1:8787:8787"
+    restart: unless-stopped
+
+  firestore-component-tests:
+    image: mtlynch/firestore-emulator:20210410
+    env_file:
+      - .env
+    environment:
+      PORT: 8787
+    ports:
+      - "127.0.0.1:8788:8787"
     restart: unless-stopped
 
   mysql:
