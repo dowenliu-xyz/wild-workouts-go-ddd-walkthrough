@@ -50,6 +50,8 @@ func (c TrainerHTTPClient) MakeHourAvailable(t *testing.T, hour time.Time) int {
 		Hours: []time.Time{hour},
 	})
 	require.NoError(t, err)
+	require.NoError(t, response.Body.Close())
+
 	return response.StatusCode
 }
 
@@ -58,6 +60,8 @@ func (c TrainerHTTPClient) MakeHourUnavailable(t *testing.T, hour time.Time) {
 		Hours: []time.Time{hour},
 	})
 	require.NoError(t, err)
+	require.NoError(t, response.Body.Close())
+
 	require.Equal(t, http.StatusNoContent, response.StatusCode)
 }
 
@@ -114,6 +118,8 @@ func (c TrainingsHTTPClient) CreateTrainingShouldFail(t *testing.T, note string,
 		Time:  hour,
 	})
 	require.NoError(t, err)
+	require.NoError(t, response.Body.Close())
+
 	require.Equal(t, http.StatusInternalServerError, response.StatusCode)
 }
 
@@ -128,6 +134,8 @@ func (c TrainingsHTTPClient) GetTrainings(t *testing.T) trainings.Trainings {
 func (c TrainingsHTTPClient) CancelTraining(t *testing.T, trainingUUID string, expectedStatusCode int) {
 	response, err := c.client.CancelTraining(context.Background(), trainingUUID)
 	require.NoError(t, err)
+	require.NoError(t, response.Body.Close())
+
 	require.Equal(t, expectedStatusCode, response.StatusCode)
 }
 

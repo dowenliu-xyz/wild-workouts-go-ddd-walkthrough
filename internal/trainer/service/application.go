@@ -5,7 +5,9 @@ import (
 	"os"
 
 	"cloud.google.com/go/firestore"
+	"github.com/sirupsen/logrus"
 
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/metrics"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/adapters"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/app"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/app/command"
@@ -34,16 +36,19 @@ func NewApplication(ctx context.Context) app.Application {
 
 	hourRepository := adapters.NewFirestoreHourRepository(firestoreClient, hourFactory)
 
+	logger := logrus.NewEntry(logrus.StandardLogger())
+	metricsClient := metrics.NoOp{}
+
 	return app.Application{
 		Commands: app.Commands{
-			CancelTraining:       command.NewCancelTrainingHandler(hourRepository),
-			ScheduleTraining:     command.NewScheduleTrainingHandler(hourRepository),
-			MakeHoursAvailable:   command.NewMakeHoursAvailableHandler(hourRepository),
-			MakeHoursUnavailable: command.NewMakeHoursUnavailableHandler(hourRepository),
+			CancelTraining:       command.NewCancelTrainingHandler(hourRepository, logger, metricsClient),
+			ScheduleTraining:     command.NewScheduleTrainingHandler(hourRepository, logger, metricsClient),
+			MakeHoursAvailable:   command.NewMakeHoursAvailableHandler(hourRepository, logger, metricsClient),
+			MakeHoursUnavailable: command.NewMakeHoursUnavailableHandler(hourRepository, logger, metricsClient),
 		},
 		Queries: app.Queries{
-			HourAvailability:      query.NewHourAvailabilityHandler(hourRepository),
-			TrainerAvailableHours: query.NewAvailableHoursHandler(datesRepository),
+			HourAvailability:      query.NewHourAvailabilityHandler(hourRepository, logger, metricsClient),
+			TrainerAvailableHours: query.NewAvailableHoursHandler(datesRepository, logger, metricsClient),
 		},
 	}
 }

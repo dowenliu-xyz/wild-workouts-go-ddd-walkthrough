@@ -10,5 +10,5 @@ Three Dots Labs 《Too modern》系列文章项目手抄练习
 很多依赖的库已经过时，几经折腾，后端模块都跑起来了，web实在没办法，firebase 依赖搞不定。
 先放弃 web 部分。
 
----
-对 common 模块的 go.mod 依赖可能不对，为保证编译正确，可以在项目根目录加上 go.work 文件
+### TODO
+* [ ] vue3 + bootstrap5 + typescript 实现 web 部分 

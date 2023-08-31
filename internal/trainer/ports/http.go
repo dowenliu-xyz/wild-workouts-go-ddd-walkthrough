@@ -9,6 +9,7 @@ import (
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/auth"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/server/httperr"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/app"
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/app/command"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/app/query"
 )
 
@@ -22,10 +23,10 @@ func NewHttpServer(application app.Application) HttpServer {
 	}
 }
 
-func (h HttpServer) GetTrainerAvailableHours(w http.ResponseWriter, r *http.Request, queryParams GetTrainerAvailableHoursParams) {
+func (h HttpServer) GetTrainerAvailableHours(w http.ResponseWriter, r *http.Request, params GetTrainerAvailableHoursParams) {
 	dateModels, err := h.app.Queries.TrainerAvailableHours.Handle(r.Context(), query.AvailableHours{
-		From: queryParams.DateFrom,
-		To:   queryParams.DateTo,
+		From: params.DateFrom,
+		To:   params.DateTo,
 	})
 	if err != nil {
 		httperr.RespondWithSlugError(err, w, r)
@@ -78,7 +79,7 @@ func (h HttpServer) MakeHourAvailable(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.app.Commands.MakeHoursAvailable.Handle(r.Context(), hourUpdate.Hours)
+	err = h.app.Commands.MakeHoursAvailable.Handle(r.Context(), command.MakeHoursAvailable{Hours: hourUpdate.Hours})
 	if err != nil {
 		httperr.RespondWithSlugError(err, w, r)
 		return
@@ -105,7 +106,7 @@ func (h HttpServer) MakeHourUnavailable(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = h.app.Commands.MakeHoursUnavailable.Handle(r.Context(), hourUpdate.Hours)
+	err = h.app.Commands.MakeHoursUnavailable.Handle(r.Context(), command.MakeHoursUnavailable{Hours: hourUpdate.Hours})
 	if err != nil {
 		httperr.RespondWithSlugError(err, w, r)
 		return

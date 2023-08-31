@@ -10,6 +10,7 @@ import (
 )
 
 func TestTraining_Cancel(t *testing.T) {
+	t.Parallel()
 	tr := newExampleTraining(t)
 	// it's always a good idea to ensure about pre-conditions in the test ;-)
 	assert.False(t, tr.IsCanceled())
@@ -20,6 +21,7 @@ func TestTraining_Cancel(t *testing.T) {
 }
 
 func TestTraining_Cancel_already_canceled(t *testing.T) {
+	t.Parallel()
 	tr := newCanceledTraining(t)
 
 	assert.EqualError(t, tr.Cancel(), training.NewErrTrainingAlreadyCanceled().Error())

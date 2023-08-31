@@ -197,7 +197,7 @@ func (r TrainingsFirestoreRepository) RemoveAllTrainings(ctx context.Context) er
 		iter := r.trainingsCollection().Limit(100).Documents(ctx)
 		numDeleted := 0
 
-		batch := r.firestoreClient.Batch()
+		bulk := r.firestoreClient.BulkWriter(ctx)
 		for {
 			doc, err := iter.Next()
 			if errors.Is(err, iterator.Done) {
@@ -207,17 +207,17 @@ func (r TrainingsFirestoreRepository) RemoveAllTrainings(ctx context.Context) er
 				return errors.Wrap(err, "unable to get document")
 			}
 
-			batch.Delete(doc.Ref)
+			_, err = bulk.Delete(doc.Ref)
+			if err != nil {
+				return errors.Wrap(err, "unable to delete document")
+			}
 			numDeleted++
 		}
 
+		bulk.End()
+
 		if numDeleted == 0 {
 			return nil
-		}
-
-		_, err := batch.Commit(ctx)
-		if err != nil {
-			return errors.Wrap(err, "unable to remove docs")
 		}
 	}
 }

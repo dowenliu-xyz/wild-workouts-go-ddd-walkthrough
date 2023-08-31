@@ -18,7 +18,7 @@ import (
 )
 
 func TestRepository(t *testing.T) {
-	rand.Seed(time.Now().UTC().UnixNano())
+	t.Parallel()
 
 	repositories := createRepositories(t)
 
@@ -110,7 +110,9 @@ func testUpdateHour(t *testing.T, repository hour.Repository) {
 	}
 
 	for _, tc := range testCases {
+		tc := tc
 		t.Run(tc.Name, func(t *testing.T) {
+			t.Parallel()
 			newHour := tc.CreateHour(t)
 
 			err := repository.UpdateHour(ctx, newHour.Time(), func(_ *hour.Hour) (*hour.Hour, error) {
@@ -213,6 +215,7 @@ func testUpdateHour_rollback(t *testing.T, repository hour.Repository) {
 		require.NoError(t, h.MakeAvailable())
 		return h, nil
 	})
+	require.NoError(t, err)
 
 	err = repository.UpdateHour(ctx, hourTime, func(h *hour.Hour) (*hour.Hour, error) {
 		assert.True(t, h.IsAvailable())
@@ -255,6 +258,7 @@ func testHourRepository_update_existing(t *testing.T, repository hour.Repository
 }
 
 func TestNewDateDTO(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		Time             time.Time
 		ExpectedDateTime time.Time
@@ -272,7 +276,9 @@ func TestNewDateDTO(t *testing.T) {
 	}
 
 	for _, c := range testCases {
+		c := c
 		t.Run(c.Time.String(), func(t *testing.T) {
+			t.Parallel()
 			dateDTO := adapters.NewEmptyDateDTO(c.Time)
 			assert.True(t, dateDTO.Date.Equal(c.ExpectedDateTime), "%s != %s", dateDTO.Date, c.ExpectedDateTime)
 		})

@@ -4,7 +4,9 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/decorator"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/logs"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainings/domain/training"
 )
@@ -14,27 +16,39 @@ type CancelTraining struct {
 	User         training.User
 }
 
-type CancelTrainingHandler struct {
+type CancelTrainingHandler decorator.CommandHandler[CancelTraining]
+
+type cancelTrainingHandler struct {
 	repo           training.Repository
 	userService    UserService
 	trainerService TrainerService
 }
 
-func NewCancelTrainingHandler(repo training.Repository, userService UserService, trainerService TrainerService) CancelTrainingHandler {
+func NewCancelTrainingHandler(
+	repo training.Repository,
+	userService UserService,
+	trainerService TrainerService,
+	logger *logrus.Entry,
+	metricsClient decorator.MetricsClient,
+) CancelTrainingHandler {
 	if repo == nil {
 		panic("nil repo") // TODO 开除预警
 	}
 	if userService == nil {
-		panic("nil user service") // 开除预警
+		panic("nil user service") // TODO 开除预警
 	}
 	if trainerService == nil {
 		panic("nil trainer service")
 	}
 
-	return CancelTrainingHandler{repo: repo, userService: userService, trainerService: trainerService}
+	return decorator.ApplyCommandDecorators[CancelTraining](
+		cancelTrainingHandler{repo: repo, userService: userService, trainerService: trainerService},
+		logger,
+		metricsClient,
+	)
 }
 
-func (h CancelTrainingHandler) Handle(ctx context.Context, cmd CancelTraining) (err error) {
+func (h cancelTrainingHandler) Handle(ctx context.Context, cmd CancelTraining) (err error) {
 	defer func() {
 		logs.LogCommandExecution("CancelTrainingHandler", cmd, err)
 	}()

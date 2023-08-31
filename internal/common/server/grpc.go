@@ -9,7 +9,17 @@ import (
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/logs"
 )
+
+func init() {
+	logger := logrus.New()
+	logs.SetFormatter(logger)
+	logger.SetLevel(logrus.WarnLevel)
+
+	grpc_logrus.ReplaceGrpcLogger(logrus.NewEntry(logger))
+}
 
 func RunGRPCServer(registerServer func(server *grpc.Server)) {
 	port := os.Getenv("PORT")
@@ -22,7 +32,6 @@ func RunGRPCServer(registerServer func(server *grpc.Server)) {
 
 func RunGRPCServerOnAddr(addr string, registerServer func(server *grpc.Server)) {
 	logrusEntry := logrus.NewEntry(logrus.StandardLogger())
-	grpc_logrus.ReplaceGrpcLogger(logrusEntry)
 
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(

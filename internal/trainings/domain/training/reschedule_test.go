@@ -11,6 +11,7 @@ import (
 )
 
 func TestTraining_RescheduleTraining(t *testing.T) {
+	t.Parallel()
 	tr := newExampleTraining(t)
 
 	oldTime := tr.Time()
@@ -25,6 +26,7 @@ func TestTraining_RescheduleTraining(t *testing.T) {
 }
 
 func TestTraining_RescheduleTraining_less_than_24h_before(t *testing.T) {
+	t.Parallel()
 	originalTime := time.Now().Round(time.Hour)
 	rescheduleRequestTime := originalTime.AddDate(0, 0, 5)
 
@@ -38,6 +40,7 @@ func TestTraining_RescheduleTraining_less_than_24h_before(t *testing.T) {
 }
 
 func TestTraining_ProposeReschedule_by_attendee(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		Name     string
 		Proposer training.UserType
@@ -56,7 +59,9 @@ func TestTraining_ProposeReschedule_by_attendee(t *testing.T) {
 	}
 
 	for _, c := range testCases {
+		c := c
 		t.Run(c.Name, func(t *testing.T) {
+			t.Parallel()
 			originalTime := time.Now().Round(time.Hour)
 			rescheduleRequestTime := originalTime.AddDate(0, 0, 5)
 			tr := newExampleTrainingWithTime(t, originalTime)
@@ -77,6 +82,7 @@ func TestTraining_ProposeReschedule_by_attendee(t *testing.T) {
 }
 
 func TestTraining_ProposeReschedule_approve_by_proposer(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		Proposer training.UserType
 	}{
@@ -89,7 +95,9 @@ func TestTraining_ProposeReschedule_approve_by_proposer(t *testing.T) {
 	}
 
 	for _, c := range testCases {
+		c := c
 		t.Run(c.Proposer.String(), func(t *testing.T) {
+			t.Parallel()
 			originalTime := time.Now().Round(time.Hour)
 			rescheduleRequestTime := originalTime.AddDate(0, 0, 5)
 			tr := newExampleTrainingWithTime(t, originalTime)
@@ -106,12 +114,14 @@ func TestTraining_ProposeReschedule_approve_by_proposer(t *testing.T) {
 }
 
 func TestTraining_ApproveReschedule_not_proposed(t *testing.T) {
+	t.Parallel()
 	tr := newExampleTrainingWithTime(t, time.Now().Round(time.Hour))
 
 	assert.EqualError(t, tr.ApproveReschedule(training.UserTypeTrainer()), training.NewErrNoRescheduleRequested().Error())
 }
 
 func TestTraining_RejectRescheduleTraining(t *testing.T) {
+	t.Parallel()
 	originalTime := time.Now().Round(time.Hour)
 	rescheduleRequestTime := originalTime.AddDate(0, 0, 5)
 	tr := newExampleTrainingWithTime(t, originalTime)

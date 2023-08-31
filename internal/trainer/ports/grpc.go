@@ -4,18 +4,18 @@ import (
 	"context"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/genproto/trainer"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/app"
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/app/command"
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/app/query"
 )
 
 type GrpcServer struct {
-	trainer.UnimplementedTrainerServiceServer
-
 	app app.Application
 }
 
@@ -23,52 +23,40 @@ func NewGrpcServer(application app.Application) GrpcServer {
 	return GrpcServer{app: application}
 }
 
-func (g GrpcServer) MakeHourAvailable(ctx context.Context, request *trainer.UpdateHourRequest) (*trainer.EmptyResponse, error) {
-	trainingTime, err := protoTimestampToTime(request.Time)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "unable to parse time")
-	}
+func (g GrpcServer) MakeHourAvailable(ctx context.Context, request *trainer.UpdateHourRequest) (*empty.Empty, error) {
+	trainingTime := protoTimestampToTime(request.Time)
 
-	if err := g.app.Commands.MakeHoursAvailable.Handle(ctx, []time.Time{trainingTime}); err != nil {
+	if err := g.app.Commands.MakeHoursAvailable.Handle(ctx, command.MakeHoursAvailable{Hours: []time.Time{trainingTime}}); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &trainer.EmptyResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
-func (g GrpcServer) ScheduleTraining(ctx context.Context, request *trainer.UpdateHourRequest) (*trainer.EmptyResponse, error) {
-	trainingTime, err := protoTimestampToTime(request.Time)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "unable to parse time")
-	}
+func (g GrpcServer) ScheduleTraining(ctx context.Context, request *trainer.UpdateHourRequest) (*empty.Empty, error) {
+	trainingTime := protoTimestampToTime(request.Time)
 
-	if err := g.app.Commands.ScheduleTraining.Handle(ctx, trainingTime); err != nil {
+	if err := g.app.Commands.ScheduleTraining.Handle(ctx, command.ScheduleTraining{Hour: trainingTime}); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &trainer.EmptyResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
-func (g GrpcServer) CancelTraining(ctx context.Context, request *trainer.UpdateHourRequest) (*trainer.EmptyResponse, error) {
-	trainingTime, err := protoTimestampToTime(request.Time)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "unable to parse time")
-	}
+func (g GrpcServer) CancelTraining(ctx context.Context, request *trainer.UpdateHourRequest) (*empty.Empty, error) {
+	trainingTime := protoTimestampToTime(request.Time)
 
-	if err := g.app.Commands.CancelTraining.Handle(ctx, trainingTime); err != nil {
+	if err := g.app.Commands.CancelTraining.Handle(ctx, command.CancelTraining{Hour: trainingTime}); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &trainer.EmptyResponse{}, nil
+	return &empty.Empty{}, nil
 }
 
 func (g GrpcServer) IsHourAvailable(ctx context.Context, request *trainer.IsHourAvailableRequest) (*trainer.IsHourAvailableResponse, error) {
-	trainingTime, err := protoTimestampToTime(request.Time)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "unable to parse time")
-	}
+	trainingTime := protoTimestampToTime(request.Time)
 
-	isAvailable, err := g.app.Queries.HourAvailability.Handle(ctx, trainingTime)
+	isAvailable, err := g.app.Queries.HourAvailability.Handle(ctx, query.HourAvailability{Hour: trainingTime})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -76,9 +64,6 @@ func (g GrpcServer) IsHourAvailable(ctx context.Context, request *trainer.IsHour
 	return &trainer.IsHourAvailableResponse{IsAvailable: isAvailable}, nil
 }
 
-func protoTimestampToTime(timestamp *timestamp.Timestamp) (time.Time, error) {
-	if timestamp.CheckValid() != nil {
-		return time.Time{}, errors.New("unable to parse time")
-	}
-	return timestamp.AsTime().UTC().Truncate(time.Hour), nil
+func protoTimestampToTime(timestamp *timestamp.Timestamp) time.Time {
+	return timestamp.AsTime().UTC().Truncate(time.Hour)
 }

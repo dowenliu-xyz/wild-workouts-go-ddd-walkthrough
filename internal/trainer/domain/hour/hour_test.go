@@ -17,6 +17,7 @@ var testHourFactory = hour.MustNewFactory(hour.FactoryConfig{
 })
 
 func TestNewAvailableHour(t *testing.T) {
+	t.Parallel()
 	h, err := testHourFactory.NewAvailableHour(validTrainingHour())
 	require.NoError(t, err)
 
@@ -24,6 +25,7 @@ func TestNewAvailableHour(t *testing.T) {
 }
 
 func TestNewAvailableHour_not_full_hour(t *testing.T) {
+	t.Parallel()
 	constructorTime := trainingHourWithMinutes(13)
 
 	_, err := testHourFactory.NewAvailableHour(constructorTime)
@@ -31,6 +33,7 @@ func TestNewAvailableHour_not_full_hour(t *testing.T) {
 }
 
 func TestNewAvailableHour_too_distant_date(t *testing.T) {
+	t.Parallel()
 	maxWeeksInFuture := 1
 
 	factory := hour.MustNewFactory(hour.FactoryConfig{
@@ -49,6 +52,7 @@ func TestNewAvailableHour_too_distant_date(t *testing.T) {
 }
 
 func TestNewAvailableHour_past_date(t *testing.T) {
+	t.Parallel()
 	pastHour := time.Now().Truncate(time.Hour).Add(-time.Hour)
 	_, err := testHourFactory.NewAvailableHour(pastHour)
 	assert.True(t, hour.IsErrPastHour(err))
@@ -59,6 +63,7 @@ func TestNewAvailableHour_past_date(t *testing.T) {
 }
 
 func TestNewAvailableHour_too_early_hour(t *testing.T) {
+	t.Parallel()
 	factory := hour.MustNewFactory(hour.FactoryConfig{
 		MaxWeeksInTheFutureToSet: 10,
 		MinUtcHour:               12,
@@ -82,6 +87,7 @@ func TestNewAvailableHour_too_early_hour(t *testing.T) {
 }
 
 func TestNewAvailableHour_too_late_hour(t *testing.T) {
+	t.Parallel()
 	factory := hour.MustNewFactory(hour.FactoryConfig{
 		MaxWeeksInTheFutureToSet: 10,
 		MinUtcHour:               12,
@@ -105,6 +111,7 @@ func TestNewAvailableHour_too_late_hour(t *testing.T) {
 }
 
 func TestHour_Time(t *testing.T) {
+	t.Parallel()
 	expectedTime := validTrainingHour()
 
 	h, err := testHourFactory.NewAvailableHour(expectedTime)
@@ -114,6 +121,7 @@ func TestHour_Time(t *testing.T) {
 }
 
 func TestUnmarshalHourFromDatabase(t *testing.T) {
+	t.Parallel()
 	trainingTime := validTrainingHour()
 
 	h, err := testHourFactory.UnmarshalHourFromDatabase(trainingTime, hour.TrainingScheduled())
@@ -124,6 +132,7 @@ func TestUnmarshalHourFromDatabase(t *testing.T) {
 }
 
 func TestFactoryConfig_Validate(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		Name        string
 		Config      hour.FactoryConfig
@@ -186,7 +195,9 @@ func TestFactoryConfig_Validate(t *testing.T) {
 	}
 
 	for _, c := range testCases {
+		c := c
 		t.Run(c.Name, func(t *testing.T) {
+			t.Parallel()
 			err := c.Config.Validate()
 
 			if c.ExpectedErr != "" {
@@ -199,6 +210,7 @@ func TestFactoryConfig_Validate(t *testing.T) {
 }
 
 func TestNewFactory_invalid_config(t *testing.T) {
+	t.Parallel()
 	f, err := hour.NewFactory(hour.FactoryConfig{})
 	assert.Error(t, err)
 	assert.Zero(t, f)

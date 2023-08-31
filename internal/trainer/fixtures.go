@@ -10,6 +10,7 @@ import (
 
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/client"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/app"
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/app/command"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainer/app/query"
 )
 
@@ -26,7 +27,7 @@ func loadFixtures(app app.Application) {
 		return
 	}
 
-	logrus.WithField("after", time.Now().Sub(start)).Debug("Trainer service is available")
+	logrus.WithField("after", time.Since(start)).Debug("Trainer service is available")
 
 	if !canLoadFixtures(app, ctx) {
 		logrus.Debug("Trainer fixtures are already loaded")
@@ -43,7 +44,7 @@ func loadFixtures(app app.Application) {
 		time.Sleep(10 * time.Second)
 	}
 
-	logrus.WithField("after", time.Now().Sub(start)).Debug("Trainer fixtures loaded")
+	logrus.WithField("after", time.Since(start)).Debug("Trainer fixtures loaded")
 }
 
 func loadTrainerFixtures(ctx context.Context, application app.Application) error {
@@ -60,7 +61,10 @@ func loadTrainerFixtures(ctx context.Context, application app.Application) error
 			}
 
 			if localRand.NormFloat64() > 0 {
-				err := application.Commands.MakeHoursAvailable.Handle(ctx, []time.Time{trainingTime})
+				err := application.Commands.MakeHoursAvailable.Handle(
+					ctx,
+					command.MakeHoursAvailable{Hours: []time.Time{trainingTime}},
+				)
 				if err != nil {
 					return errors.Wrap(err, "unable to update hour")
 				}

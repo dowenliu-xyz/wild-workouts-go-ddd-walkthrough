@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	firebase "firebase.google.com/go"
+	firebase "firebase.google.com/go/v4"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -32,7 +32,10 @@ func RunHTTPServerOnAddr(addr string, createHandler func(router chi.Router) http
 
 	logrus.Info("Starting HTTP server")
 
-	http.ListenAndServe(addr, rootRouter)
+	err := http.ListenAndServe(addr, rootRouter)
+	if err != nil {
+		logrus.WithError(err).Panic("Unable to start HTTP server")
+	}
 }
 
 func setMiddlewares(router *chi.Mux) {
@@ -73,7 +76,7 @@ func addAuthMiddleware(router *chi.Mux) {
 		logrus.WithError(err).Fatal("Unable to create firebase Auth client")
 	}
 
-	router.Use(auth.FirebaseHttpMiddleware{authClient}.Middleware)
+	router.Use(auth.FirebaseHttpMiddleware{AuthClient: authClient}.Middleware)
 }
 
 func addCorsMiddleware(router *chi.Mux) {

@@ -19,26 +19,16 @@ func NewTrainerGrpc(client trainer.TrainerServiceClient) TrainerGrpc {
 }
 
 func (s TrainerGrpc) ScheduleTraining(ctx context.Context, trainingTime time.Time) error {
-	timestamp := timestamppb.New(trainingTime)
-	if err := timestamp.CheckValid(); err != nil {
-		return errors.Wrap(err, "unable to convert time to proto timestamp")
-	}
-
 	_, err := s.client.ScheduleTraining(ctx, &trainer.UpdateHourRequest{
-		Time: timestamp,
+		Time: timestamppb.New(trainingTime),
 	})
 
 	return errors.WithStack(err)
 }
 
 func (s TrainerGrpc) CancelTraining(ctx context.Context, trainingTime time.Time) error {
-	timestamp := timestamppb.New(trainingTime)
-	if err := timestamp.CheckValid(); err != nil {
-		return errors.Wrap(err, "unable to convert time to proto timestamp")
-	}
-
 	_, err := s.client.CancelTraining(ctx, &trainer.UpdateHourRequest{
-		Time: timestamp,
+		Time: timestamppb.New(trainingTime),
 	})
 
 	return errors.WithStack(err)

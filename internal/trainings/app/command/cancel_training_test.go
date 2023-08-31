@@ -7,13 +7,16 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/metrics"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainings/app/command"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainings/domain/training"
 )
 
 func TestCancelTraining(t *testing.T) {
+	t.Parallel()
 	requestingUserID := "requesting-user-id"
 
 	testCases := []struct {
@@ -128,11 +131,14 @@ func newDependencies() dependencies {
 	trainerService := &trainerServiceMock{}
 	userService := &userServiceMock{}
 
+	logger := logrus.NewEntry(logrus.StandardLogger())
+	metricsClient := metrics.NoOp{}
+
 	return dependencies{
 		repository:     repository,
 		trainerService: trainerService,
 		userService:    userService,
-		handler:        command.NewCancelTrainingHandler(repository, userService, trainerService),
+		handler:        command.NewCancelTrainingHandler(repository, userService, trainerService, logger, metricsClient),
 	}
 }
 
@@ -165,7 +171,7 @@ func (r *repositoryMock) UpdateTraining(
 	return nil
 }
 
-func (r *repositoryMock) AddTraining(ctx context.Context, tr *training.Training) error {
+func (r repositoryMock) AddTraining(ctx context.Context, tr *training.Training) error {
 	panic("implement me")
 }
 

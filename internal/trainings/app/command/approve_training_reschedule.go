@@ -3,6 +3,9 @@ package command
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
+
+	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/decorator"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/logs"
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/trainings/domain/training"
 )
@@ -12,7 +15,9 @@ type ApproveTrainingReschedule struct {
 	User         training.User
 }
 
-type ApproveTrainingRescheduleHandler struct {
+type ApproveTrainingRescheduleHandler decorator.CommandHandler[ApproveTrainingReschedule]
+
+type approveTrainingRescheduleHandler struct {
 	repo           training.Repository
 	userService    UserService
 	trainerService TrainerService
@@ -22,6 +27,8 @@ func NewApproveTrainingRescheduleHandler(
 	repo training.Repository,
 	userService UserService,
 	trainerService TrainerService,
+	logger *logrus.Entry,
+	metricsClient decorator.MetricsClient,
 ) ApproveTrainingRescheduleHandler {
 	if repo == nil {
 		panic("nil repo") // TODO 开除预警
@@ -33,10 +40,14 @@ func NewApproveTrainingRescheduleHandler(
 		panic("nil trainerService") // TODO 开除预警
 	}
 
-	return ApproveTrainingRescheduleHandler{repo, userService, trainerService}
+	return decorator.ApplyCommandDecorators[ApproveTrainingReschedule](
+		approveTrainingRescheduleHandler{repo, userService, trainerService},
+		logger,
+		metricsClient,
+	)
 }
 
-func (h ApproveTrainingRescheduleHandler) Handle(ctx context.Context, cmd ApproveTrainingReschedule) (err error) {
+func (h approveTrainingRescheduleHandler) Handle(ctx context.Context, cmd ApproveTrainingReschedule) (err error) {
 	defer func() {
 		logs.LogCommandExecution("ApproveTrainingReschedule", cmd, err)
 	}()

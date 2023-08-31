@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	firebase "firebase.google.com/go"
-	"firebase.google.com/go/auth"
+	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/auth"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
@@ -16,7 +16,7 @@ import (
 	"github.com/dowenliu-xyz/wild-workouts-go-ddd-walkthrough/internal/common/genproto/users"
 )
 
-func loadFixtures(db db) {
+func loadFixtures() {
 	start := time.Now()
 	logrus.Debug("Waiting for users service")
 
@@ -26,7 +26,7 @@ func loadFixtures(db db) {
 		return
 	}
 
-	logrus.WithField("after", time.Now().Sub(start)).Debug("Users service is available")
+	logrus.WithField("after", time.Since(start)).Debug("Users service is available")
 
 	var attendeeUUIDs []string
 	var err error
@@ -56,7 +56,7 @@ func loadFixtures(db db) {
 		time.Sleep(10 * time.Second)
 	}
 
-	logrus.WithField("after", time.Now().Sub(start)).Debug("Users fixtures loaded")
+	logrus.WithField("after", time.Since(start)).Debug("Users fixtures loaded")
 }
 
 func createFirebaseUsers() ([]string, error) {
