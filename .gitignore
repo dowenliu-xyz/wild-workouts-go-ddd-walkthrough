@@ -25,11 +25,6 @@ vendor/
 terraform/.env
 terraform/cloud-builders-community
 
-/web/src/repositories/clients/*
-!/web/src/repositories/clients/trainer/src/
-!/web/src/repositories/clients/trainings/src/
-!/web/src/repositories/clients/users/src/
-
 /service-account-file.json
 
 .go/

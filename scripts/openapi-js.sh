@@ -17,4 +17,6 @@ docker run --rm --env "JAVA_OPTS=-Dlog.level=error" \
   -i "/local/api/openapi/$service.yml" \
   -g typescript-axios \
   -o "/local/web/src/repositories/clients/$service"
-rm -rf "web/src/repositories/clients/$service/{.openapi-generator,.gitignore,.npmignore,.openapi-generator-ignore,git_push.sh}"
+for file in .openapi-generator .gitignore .npmignore .openapi-generator-ignore git_push.sh ; do
+  rm -rf "web/src/repositories/clients/$service/$file"
+done

@@ -1,24 +1,30 @@
 version: '3.8'
 name: 'wild-workouts'
 services:
-  #  web:
-  #    build:
-  #      context: docker/web
-  #      dockerfile: Dockerfile
-  #    working_dir: /web
-  #    volumes:
-  #      - ./web:/web
-  #      - /web/node_modules/
-  #    ports:
-  #      - "127.0.0.1:8080:5173"
+#  web:
+#    build:
+#      context: docker/web
+#      dockerfile: Dockerfile
+#    working_dir: /web
+#    volumes:
+#      - ./web:/web
+#      - type: volume
+#        source: npm-cache
+#        target: /web/node_modules/
+#    ports:
+#      - "127.0.0.1:8080:5173"
 
   trainer-http:
     build:
       context: docker/app
     volumes:
       - ./internal:/internal
-      - ./.go/pkg:/go/pkg
-      - ./.go-cache:/go-cache
+      - type: volume
+        source: go-cache
+        target: /go/pkg
+      - type: volume
+        source: go-cache
+        target: /go-cache
 #      - ./service-account-file.json:$SERVICE_ACCOUNT_FILE
     working_dir: /internal/trainer
     ports:
@@ -36,8 +42,12 @@ services:
       context: docker/app
     volumes:
       - ./internal:/internal
-      - ./.go/pkg:/go/pkg
-      - ./.go-cache:/go-cache
+      - type: volume
+        source: go-cache
+        target: /go/pkg
+      - type: volume
+        source: go-cache
+        target: /go-cache
 #      - ./service-account-file.json:$SERVICE_ACCOUNT_FILE
     working_dir: /internal/trainer
     ports:
@@ -55,8 +65,12 @@ services:
       context: docker/app
     volumes:
       - ./internal:/internal
-      - ./.go/pkg:/go/pkg
-      - ./.go-cache:/go-cache
+      - type: volume
+        source: go-cache
+        target: /go/pkg
+      - type: volume
+        source: go-cache
+        target: /go-cache
 #      - ./service-account-file.json:$SERVICE_ACCOUNT_FILE
     working_dir: /internal/trainings
     ports:
@@ -73,8 +87,12 @@ services:
       context: docker/app
     volumes:
       - ./internal:/internal
-      - ./.go/pkg:/go/pkg
-      - ./.go-cache:/go-cache
+      - type: volume
+        source: go-cache
+        target: /go/pkg
+      - type: volume
+        source: go-cache
+        target: /go-cache
 #      - ./service-account-file.json:$SERVICE_ACCOUNT_FILE
     working_dir: /internal/users
     ports:
@@ -92,8 +110,12 @@ services:
       context: docker/app
     volumes:
       - ./internal:/internal
-      - ./.go/pkg:/go/pkg
-      - ./.go-cache:/go-cache
+      - type: volume
+        source: go-cache
+        target: /go/pkg
+      - type: volume
+        source: go-cache
+        target: /go-cache
 #      - ./service-account-file.json:$SERVICE_ACCOUNT_FILE
     working_dir: /internal/users
     ports:
@@ -112,8 +134,10 @@ services:
     env_file:
       - .env
     ports:
-      - "127.0.0.1:8787:8787"
       - "127.0.0.1:4000:4000"
+      - "127.0.0.1:4400:4400"
+      - "127.0.0.1:8787:8787"
+      - "127.0.0.1:9099:9099"
     restart: unless-stopped
 
   firestore-component-tests:
@@ -134,3 +158,7 @@ services:
     ports:
       - "127.0.0.1:3306:3306"
     restart: unless-stopped
+
+volumes:
+  go-cache:
+  npm-cache:

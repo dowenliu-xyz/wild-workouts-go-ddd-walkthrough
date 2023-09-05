@@ -15,12 +15,12 @@ openapi_http: tools.require.oapi-codegen
 	@./scripts/openapi-http.sh trainings internal/trainings/ports ports
 	@./scripts/openapi-http.sh users internal/users main
 
-#.PHONY: openapi_js
-#openapi_js:
-#	@chmod +x ./scripts/openapi-js.sh
-#	@./scripts/openapi-js.sh trainer
-#	@./scripts/openapi-js.sh trainings
-#	@./scripts/openapi-js.sh users
+.PHONY: openapi_js
+openapi_js:
+	@chmod +x ./scripts/openapi-js.sh
+	@./scripts/openapi-js.sh trainer
+	@./scripts/openapi-js.sh trainings
+	@./scripts/openapi-js.sh users
 
 .PHONY: proto
 proto:

@@ -191,7 +191,7 @@ func appTrainingsToResponse(appTrainings []query.Training) []Training {
 		t := Training{
 			CanBeCancelled:     tm.CanBeCancelled,
 			MoveProposedBy:     tm.MoveProposedBy,
-			MoveRequiresAccept: tm.CanBeCancelled,
+			MoveRequiresAccept: !tm.CanBeCancelled,
 			Notes:              tm.Notes,
 			ProposedTime:       tm.ProposedTime,
 			Time:               tm.Time,

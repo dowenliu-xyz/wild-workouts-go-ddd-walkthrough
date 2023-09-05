@@ -1,0 +1,11 @@
+{
+  "//": "emulating Firebase hosting, more: https://firebase.google.com/docs/hosting/reserved-urls?authuser=2",
+
+  "apiKey": "fake-api-key",
+  "authDomain": "",
+  "databaseURL": "",
+  "projectId": "",
+  "storageBucket": "",
+  "messagingSenderId": "",
+  "appId": ""
+}
