@@ -7,12 +7,12 @@ import interactionPlugin from '@fullcalendar/interaction'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
-import {TRAINING_TIMEZONE} from "@/date";
-import dayjs from "dayjs";
+import {TRAINING_TIMEZONE} from '@/date'
+import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-import timezone from "dayjs/plugin/timezone";
-import {getCalendar, getSchedule} from "@/repositories/trainings";
-import {getUserRole, Trainer} from "@/repositories/user";
+import timezone from 'dayjs/plugin/timezone'
+import {getCalendar, getSchedule} from '@/repositories/trainings'
+import {getUserRole, Trainer} from '@/repositories/user'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -31,8 +31,8 @@ const options = ref<CalendarOptions>({
 })
 
 const getScheduleCalenderEvents = async (): Promise<EventInput[]> => {
-  const start = dayjs().utc().set("hour", 0).set("minute", 0).set('second', 0).set('millisecond', 0)
-  const end = start.add(3, "month")
+  const start = dayjs().utc().set('hour', 0).set('minute', 0).set('second', 0).set('millisecond', 0)
+  const end = start.add(3, 'month')
 
   return getSchedule(start.format(), end.format()).then((schedule) => {
     const scheduleEvents = []
@@ -44,7 +44,7 @@ const getScheduleCalenderEvents = async (): Promise<EventInput[]> => {
 
         if (hour.available) {
           const start = dayjs(hour.hour).tz(TRAINING_TIMEZONE)
-          const end = start.add(1, "hour")
+          const end = start.add(1, 'hour')
           scheduleEvents.push({
             display: 'background',
             start: start.format(),
